@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+:root {
+  --papaji-orange: #F97316;
+  --papaji-navy: #1E3A5F;
+  --papaji-cream: #FFF8F0;
+  --papaji-light: #FED7AA;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+@keyframes pulse-gentle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-gentle {
+  animation: pulse-gentle 2s ease-in-out infinite;
+}
