@@ -198,23 +198,41 @@ export default function Home() {
               className="text-xs tracking-[0.4em] uppercase mb-8"
               style={{ color: "#c4a265", fontFamily: "'Cormorant Garamond', serif" }}
             >
-              About the Artist
+              The Artist
             </h2>
             <p
               className="text-lg md:text-xl leading-relaxed font-light"
               style={{ color: "#faf8f5cc", fontFamily: "'Cormorant Garamond', serif" }}
             >
-              Abhay Kumar Gautam is a painter, sculptor, and retired art teacher from Kanpur, India.
-              Over three decades, his work has explored the dynamism of equine form, the quiet poetry
-              of landscapes, and the surreal spaces between memory and dream.
+              Born in Bareilly, a small town in rural Uttar Pradesh, Abhay Kumar Gautam grew up
+              under the watchful eye of a strict father — a school principal who believed in
+              discipline above all else. He lost his mother young and found himself shouldering
+              responsibility for his siblings before most children learn to carry anything at all.
             </p>
             <p
               className="mt-6 text-lg md:text-xl leading-relaxed font-light"
               style={{ color: "#faf8f5cc", fontFamily: "'Cormorant Garamond', serif" }}
             >
-              His palette draws from the earth — burnt sienna, monsoon greens, twilight golds.
-              A graduate of the Kanpur School of Art, he spent 30+ years teaching the next generation
-              while building a body of work that spans oil painting, watercolor, and sculpture.
+              But somewhere between the hard work and the sorrow — he found art. Not as escape,
+              but as translation. Every joy, every grief, every monsoon evening became pigment on
+              canvas, form in clay. He studied art formally, earned a doctorate, and spent over
+              thirty years teaching at BN SD College, Kanpur — shaping generations of young artists.
+            </p>
+            <p
+              className="mt-6 text-lg md:text-xl leading-relaxed font-light"
+              style={{ color: "#faf8f5cc", fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              Now retired from the classroom but not from the canvas, he is returning to where
+              it all began — his own work. In a world flooding with AI-generated images and digital
+              shortcuts, Abhay Kumar Gautam makes art the way it was meant to be made. By hand.
+              With paint under his fingernails and six decades of lived experience behind every
+              brushstroke.
+            </p>
+            <p
+              className="mt-8 text-base tracking-wide italic"
+              style={{ color: "#c4a265", fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              &ldquo;Sixty years of living. Every brushstroke earned.&rdquo;
             </p>
           </FadeIn>
         </div>
