@@ -122,9 +122,23 @@ export default function Home() {
             className="mt-4 text-xs sm:text-sm tracking-[0.4em] uppercase"
             style={{ color: "#c4a265", fontFamily: "'Cormorant Garamond', serif" }}
           >
-            Paintings &amp; Sculpture
+            Made by Hand. Shaped by Life.
           </motion.p>
         </div>
+      </section>
+
+      {/* PHILOSOPHY STRIP */}
+      <section className="py-16 px-6 md:px-12 text-center" style={{ backgroundColor: "#111" }}>
+        <FadeIn>
+          <p
+            className="text-lg md:text-2xl font-light leading-relaxed max-w-3xl mx-auto italic"
+            style={{ color: "#faf8f5bb", fontFamily: "'Cormorant Garamond', serif" }}
+          >
+            In a world of AI-generated images and digital shortcuts, these paintings are made
+            the old way — by hand, with paint under the fingernails and sixty years of lived
+            experience behind every brushstroke.
+          </p>
+        </FadeIn>
       </section>
 
       {/* GALLERY */}
@@ -136,6 +150,12 @@ export default function Home() {
           >
             Selected Works
           </h2>
+          <p
+            className="mt-4 text-lg font-light max-w-xl mx-auto"
+            style={{ color: "#faf8f577", fontFamily: "'Cormorant Garamond', serif" }}
+          >
+            Each piece carries the texture of a human life — earned, not generated.
+          </p>
         </FadeIn>
         <div className="masonry max-w-[1600px] mx-auto">
           {artworks.map((item, i) => (
@@ -155,8 +175,8 @@ export default function Home() {
           >
             In Your Space
           </h2>
-          <p className="mt-4 text-lg font-light max-w-xl mx-auto" style={{ color: "#faf8f5aa" }}>
-            Visualize how these works transform a room.
+          <p className="mt-4 text-lg font-light max-w-xl mx-auto" style={{ color: "#faf8f5aa", fontFamily: "'Cormorant Garamond', serif" }}>
+            Art that has lived deserves a home that lives. See how these works transform a room.
           </p>
         </FadeIn>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-[1400px] mx-auto">
@@ -175,6 +195,46 @@ export default function Home() {
               </div>
             </FadeIn>
           ))}
+        </div>
+      </section>
+
+      {/* ORIGIN STORY — text strip */}
+      <section className="py-20 px-6 md:px-12" style={{ backgroundColor: "#111" }}>
+        <div className="max-w-3xl mx-auto">
+          <FadeIn>
+            <h2
+              className="text-xs tracking-[0.4em] uppercase mb-10 text-center"
+              style={{ color: "#c4a265", fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              The Journey
+            </h2>
+          </FadeIn>
+          <div className="space-y-6">
+            {[
+              { year: "Bareilly", text: "Born in a small town in rural Uttar Pradesh. A strict father — a school principal. Lost his mother young. Raised his siblings." },
+              { year: "Art School", text: "Found refuge in art — not as escape, but as translation. Every joy, every grief became pigment on canvas, form in clay." },
+              { year: "Doctorate", text: "Studied art formally and earned a doctorate. Not for credentials, but to understand the thing that understood him." },
+              { year: "30+ Years", text: "Taught at BN SD College, Kanpur. Shaped generations of young artists. Gave them technique. Gave them permission." },
+              { year: "Now", text: "Retired from the classroom, not from the canvas. Returning to his own work — making art the way it was meant to be made. By hand." },
+            ].map((item, i) => (
+              <FadeIn key={item.year} delay={i * 0.1}>
+                <div className="flex gap-6 md:gap-10 items-start">
+                  <span
+                    className="text-xs tracking-[0.3em] uppercase whitespace-nowrap pt-1.5 w-24 text-right flex-shrink-0"
+                    style={{ color: "#c4a265", fontFamily: "'Cormorant Garamond', serif" }}
+                  >
+                    {item.year}
+                  </span>
+                  <p
+                    className="text-base md:text-lg font-light leading-relaxed"
+                    style={{ color: "#faf8f5aa", fontFamily: "'Cormorant Garamond', serif" }}
+                  >
+                    {item.text}
+                  </p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -252,7 +312,8 @@ export default function Home() {
               className="text-center text-lg font-light mb-16 max-w-2xl mx-auto"
               style={{ color: "#faf8f599", fontFamily: "'Cormorant Garamond', serif" }}
             >
-              Every piece is handmade — painted, sculpted, and signed by the artist in his Kanpur studio.
+              When you bring one of his paintings into your home, you&apos;re not buying a decoration.
+              You&apos;re inheriting a piece of someone&apos;s life — six decades of creation, signed by the artist in his Kanpur studio.
             </p>
           </FadeIn>
 
