@@ -1,28 +1,24 @@
-import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata } from "next";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "PapaJi 🔧 — AI Home Repair Assistant",
-  description: "Ab har phone mein ek PapaJi. Take a photo of anything broken, get a step-by-step fix in seconds.",
-  manifest: "/manifest.json",
+  title: "Abhay Kumar Gautam — Paintings & Sculpture",
+  description: "Portfolio of Abhay Kumar Gautam, painter, sculptor, and retired art teacher from Kanpur, India.",
+  openGraph: {
+    title: "Abhay Kumar Gautam — Paintings & Sculpture",
+    description: "Exploring the dynamism of equine form, the quiet poetry of landscapes, and the surreal spaces between memory and dream.",
+    images: ["/images/artwork/polo-match.jpg"],
+  },
 };
 
-export const viewport: Viewport = {
-  themeColor: "#1E3A5F",
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-[#FFF8F0] text-[#1E3A5F] min-h-screen`}>
-        {children}
-      </body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

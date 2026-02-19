@@ -1,314 +1,315 @@
 "use client";
 
-import { useState, useRef } from "react";
+import Image from "next/image";
+import { motion, useInView } from "framer-motion";
+import { useRef, useState } from "react";
 
-const DAD_QUOTES = [
-  "PapaJi soch rahe hain... 🤔",
-  "Pehle light check karo, beta...",
-  "Hmm, yeh toh maine pehle bhi fix kiya hai...",
-  "Ek minute, toolkit nikal raha hoon... 🧰",
-  "Beta, tension mat lo, PapaJi hain na!",
-  "Sab theek ho jayega, dekhna... 🔧",
+function FadeIn({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.8, delay, ease: "easeOut" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+const artworks = [
+  { src: "/images/artwork/polo-match.jpg", title: "Polo Match", w: 1200, h: 800 },
+  { src: "/images/artwork/surreal-bells.jpg", title: "Surreal Bells", w: 1200, h: 900 },
+  { src: "/images/artwork/woman-reading.jpg", title: "Woman Reading", w: 1200, h: 1500 },
+  { src: "/images/artwork/rainy-park.jpg", title: "Rainy Park", w: 1200, h: 800 },
+  { src: "/images/artwork/stormy-sea.jpg", title: "Stormy Sea", w: 1200, h: 800 },
+  { src: "/images/artwork/sunset-boat.jpg", title: "Sunset Boat", w: 1200, h: 900 },
+  { src: "/images/mockups/polo-match--in-gallery-dark.jpg", title: "Polo Match — Gallery View", w: 1200, h: 800 },
+  { src: "/images/mockups/surreal-bells--in-gallery-dark.jpg", title: "Surreal Bells — Gallery View", w: 1200, h: 800 },
+  { src: "/images/mockups/woman-reading--in-luxury-apartment.jpg", title: "Woman Reading — In Situ", w: 1200, h: 800 },
 ];
 
-interface Diagnosis {
-  problem: string;
-  difficulty: number;
-  tools: string[];
-  steps: string[];
-  parts: { name: string; estimatedCost: string }[];
-  safetyWarnings: string[];
-  dadAdvice: string;
+const mockups = [
+  { src: "/images/mockups/polo-match--in-gallery-dark.jpg", title: "Polo Match in a gallery setting" },
+  { src: "/images/mockups/stormy-sea--in-luxury-apartment.jpg", title: "Stormy Sea in a luxury apartment" },
+  { src: "/images/mockups/woman-reading--in-luxury-apartment.jpg", title: "Woman Reading in a luxury apartment" },
+  { src: "/images/mockups/rainy-park--in-modern-living.jpg", title: "Rainy Park in a modern living room" },
+];
+
+function GalleryItem({ item }: { item: typeof artworks[0] }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      className="relative overflow-hidden cursor-pointer"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <Image
+        src={item.src}
+        alt={item.title}
+        width={item.w}
+        height={item.h}
+        className="w-full h-auto block transition-transform duration-700 ease-out"
+        style={{ transform: hovered ? "scale(1.03)" : "scale(1)" }}
+        loading="lazy"
+        quality={85}
+      />
+      <div
+        className="absolute inset-0 flex items-end p-4 transition-opacity duration-500"
+        style={{
+          opacity: hovered ? 1 : 0,
+          background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)",
+        }}
+      >
+        <span className="text-[#faf8f5] text-sm tracking-[0.2em] uppercase font-light"
+          style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+          {item.title}
+        </span>
+      </div>
+    </div>
+  );
 }
 
 export default function Home() {
-  const [image, setImage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
-  const [quoteIndex, setQuoteIndex] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setImage(ev.target?.result as string);
-      setDiagnosis(null);
-      setError(null);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const diagnose = async () => {
-    if (!image) return;
-    setLoading(true);
-    setError(null);
-    setDiagnosis(null);
-
-    const interval = setInterval(() => {
-      setQuoteIndex((i) => (i + 1) % DAD_QUOTES.length);
-    }, 2500);
-
-    try {
-      const res = await fetch("/api/diagnose", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image }),
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      setDiagnosis(data);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Kuch toh gadbad hai! Try again.");
-    } finally {
-      setLoading(false);
-      clearInterval(interval);
-    }
-  };
-
-  const difficultyLabel = (d: number) => {
-    const labels = [
-      "",
-      "Beta, 2 minute ka kaam ✌️",
-      "Thoda dhyan se karna 👍",
-      "YouTube dekh ke kar loge 📺",
-      "Expert help le lo, beta 🤝",
-      "Professional bulao! ⚠️",
-    ];
-    return labels[d] || "";
-  };
-
-  const share = async () => {
-    if (!diagnosis) return;
-    const text = `PapaJi diagnosed my problem! 🔧\n\n${diagnosis.problem}\nDifficulty: ${"⭐".repeat(diagnosis.difficulty)}/5\n\nTry it: `;
-    if (navigator.share) {
-      await navigator.share({ title: "PapaJi Fix", text });
-    } else {
-      await navigator.clipboard.writeText(text);
-      alert("Copied to clipboard!");
-    }
-  };
-
-  const reset = () => {
-    setImage(null);
-    setDiagnosis(null);
-    setError(null);
-    if (fileRef.current) fileRef.current.value = "";
-  };
+  const [formSent, setFormSent] = useState(false);
 
   return (
-    <main className="max-w-lg mx-auto px-4 py-8 min-h-screen">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="text-6xl mb-2">🔧</div>
-        <h1 className="text-4xl font-black text-[#1E3A5F]">
-          Papa<span className="text-[#F97316]">Ji</span>
-        </h1>
-        <p className="text-[#1E3A5F]/70 mt-2 text-lg">
-          Ab har phone mein ek PapaJi
-        </p>
-      </div>
-
-      {/* Upload Section */}
-      {!diagnosis && (
-        <div className="space-y-4">
-          <div
-            onClick={() => fileRef.current?.click()}
-            className="border-3 border-dashed border-[#F97316]/40 rounded-2xl p-8 text-center cursor-pointer hover:border-[#F97316] hover:bg-[#F97316]/5 transition-all"
+    <main>
+      {/* NAV */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-end items-center px-6 md:px-12 py-6 mix-blend-difference">
+        {["gallery", "about", "contact"].map((s) => (
+          <a
+            key={s}
+            href={`#${s}`}
+            className="ml-8 text-xs tracking-[0.3em] uppercase transition-colors duration-300"
+            style={{ color: "#c4a265", fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#6b2d3e")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#c4a265")}
           >
-            {image ? (
-              <img
-                src={image}
-                alt="Preview"
-                className="max-h-64 mx-auto rounded-xl shadow-lg"
-              />
-            ) : (
-              <div>
-                <div className="text-5xl mb-3">📸</div>
-                <p className="text-[#1E3A5F]/60 text-lg font-medium">
-                  Kya toot gaya? Photo dikhao!
-                </p>
-                <p className="text-[#1E3A5F]/40 text-sm mt-1">
-                  Tap to take a photo or upload
-                </p>
-              </div>
-            )}
-          </div>
+            {s}
+          </a>
+        ))}
+      </nav>
 
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleImage}
-            className="hidden"
-          />
-
-          {image && !loading && (
-            <div className="flex gap-3">
-              <button
-                onClick={reset}
-                className="flex-1 py-4 rounded-xl font-bold text-[#1E3A5F] bg-[#1E3A5F]/10 hover:bg-[#1E3A5F]/20 transition-all"
-              >
-                Dobara Daalo
-              </button>
-              <button
-                onClick={diagnose}
-                className="flex-2 py-4 rounded-xl font-bold text-white bg-[#F97316] hover:bg-[#F97316]/90 shadow-lg shadow-[#F97316]/30 transition-all text-lg"
-              >
-                🔧 PapaJi, Dekho!
-              </button>
-            </div>
-          )}
-
-          {loading && (
-            <div className="text-center py-8">
-              <div className="text-5xl animate-pulse-gentle mb-4">🧔</div>
-              <p className="text-[#1E3A5F] text-lg font-medium animate-pulse">
-                {DAD_QUOTES[quoteIndex]}
-              </p>
-            </div>
-          )}
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-center">
-              {error}
-            </div>
-          )}
+      {/* HERO */}
+      <section className="relative h-[90vh] overflow-hidden">
+        <Image
+          src="/images/artwork/polo-match.jpg"
+          alt="Polo Match by Abhay Kumar Gautam"
+          fill
+          className="object-cover"
+          priority
+          quality={90}
+        />
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.3 }}
+            className="text-5xl sm:text-7xl md:text-8xl lg:text-[110px] font-light leading-none tracking-wide"
+            style={{ fontFamily: "'Playfair Display', serif", color: "#faf8f5" }}
+          >
+            Abhay Kumar Gautam
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 1 }}
+            className="mt-4 text-xs sm:text-sm tracking-[0.4em] uppercase"
+            style={{ color: "#c4a265", fontFamily: "'Cormorant Garamond', serif" }}
+          >
+            Paintings &amp; Sculpture
+          </motion.p>
         </div>
-      )}
+      </section>
 
-      {/* Diagnosis Result */}
-      {diagnosis && (
-        <div className="space-y-4 animate-[fadeIn_0.5s_ease-in]">
-          {/* Problem Card */}
-          <div className="bg-white rounded-2xl p-5 shadow-md border border-[#F97316]/20">
-            <h2 className="text-sm font-bold text-[#F97316] uppercase tracking-wide mb-2">
-              🔍 Problem Found
-            </h2>
-            <p className="text-[#1E3A5F] text-lg font-medium">{diagnosis.problem}</p>
-          </div>
+      {/* GALLERY */}
+      <section id="gallery" className="px-2 md:px-4 py-20">
+        <FadeIn className="text-center mb-16">
+          <h2
+            className="text-xs tracking-[0.4em] uppercase"
+            style={{ color: "#c4a265", fontFamily: "'Cormorant Garamond', serif" }}
+          >
+            Selected Works
+          </h2>
+        </FadeIn>
+        <div className="masonry max-w-[1600px] mx-auto">
+          {artworks.map((item, i) => (
+            <FadeIn key={item.src} delay={i * 0.05}>
+              <GalleryItem item={item} />
+            </FadeIn>
+          ))}
+        </div>
+      </section>
 
-          {/* Difficulty Meter */}
-          <div className="bg-white rounded-2xl p-5 shadow-md border border-[#F97316]/20">
-            <h2 className="text-sm font-bold text-[#F97316] uppercase tracking-wide mb-3">
-              💪 Difficulty
-            </h2>
-            <div className="flex gap-1 mb-2">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  className={`h-3 flex-1 rounded-full ${
-                    i <= diagnosis.difficulty
-                      ? diagnosis.difficulty <= 2
-                        ? "bg-green-400"
-                        : diagnosis.difficulty <= 3
-                        ? "bg-yellow-400"
-                        : "bg-red-400"
-                      : "bg-gray-200"
-                  }`}
+      {/* IN YOUR SPACE */}
+      <section className="py-20 px-4 md:px-12" style={{ backgroundColor: "#111" }}>
+        <FadeIn className="text-center mb-16">
+          <h2
+            className="text-xs tracking-[0.4em] uppercase"
+            style={{ color: "#c4a265", fontFamily: "'Cormorant Garamond', serif" }}
+          >
+            In Your Space
+          </h2>
+          <p className="mt-4 text-lg font-light max-w-xl mx-auto" style={{ color: "#faf8f5aa" }}>
+            Visualize how these works transform a room.
+          </p>
+        </FadeIn>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-[1400px] mx-auto">
+          {mockups.map((m, i) => (
+            <FadeIn key={m.src} delay={i * 0.1}>
+              <div className="relative overflow-hidden group">
+                <Image
+                  src={m.src}
+                  alt={m.title}
+                  width={1200}
+                  height={800}
+                  className="w-full h-auto transition-transform duration-700 group-hover:scale-[1.02]"
+                  loading="lazy"
+                  quality={85}
                 />
-              ))}
-            </div>
-            <p className="text-[#1E3A5F]/70 text-sm">{difficultyLabel(diagnosis.difficulty)}</p>
-          </div>
-
-          {/* Tools Needed */}
-          {diagnosis.tools.length > 0 && (
-            <div className="bg-white rounded-2xl p-5 shadow-md border border-[#F97316]/20">
-              <h2 className="text-sm font-bold text-[#F97316] uppercase tracking-wide mb-3">
-                🧰 Tools Chahiye
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {diagnosis.tools.map((tool, i) => (
-                  <span
-                    key={i}
-                    className="px-3 py-1.5 bg-[#FFF8F0] border border-[#F97316]/20 rounded-lg text-sm font-medium"
-                  >
-                    {tool}
-                  </span>
-                ))}
               </div>
-            </div>
-          )}
-
-          {/* Step-by-Step */}
-          <div className="bg-white rounded-2xl p-5 shadow-md border border-[#F97316]/20">
-            <h2 className="text-sm font-bold text-[#F97316] uppercase tracking-wide mb-3">
-              📋 Step-by-Step Guide
-            </h2>
-            <div className="space-y-3">
-              {diagnosis.steps.map((step, i) => (
-                <div key={i} className="flex gap-3">
-                  <div className="flex-shrink-0 w-7 h-7 rounded-full bg-[#F97316] text-white flex items-center justify-center text-sm font-bold">
-                    {i + 1}
-                  </div>
-                  <p className="text-[#1E3A5F]/80 pt-0.5">{step}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Parts List */}
-          {diagnosis.parts.length > 0 && (
-            <div className="bg-white rounded-2xl p-5 shadow-md border border-[#F97316]/20">
-              <h2 className="text-sm font-bold text-[#F97316] uppercase tracking-wide mb-3">
-                🛒 Parts & Cost
-              </h2>
-              {diagnosis.parts.map((part, i) => (
-                <div key={i} className="flex justify-between py-2 border-b border-gray-100 last:border-0">
-                  <span className="text-[#1E3A5F]">{part.name}</span>
-                  <span className="text-[#F97316] font-bold">{part.estimatedCost}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Safety Warnings */}
-          {diagnosis.safetyWarnings.length > 0 && (
-            <div className="bg-red-50 rounded-2xl p-5 border border-red-200">
-              <h2 className="text-sm font-bold text-red-500 uppercase tracking-wide mb-2">
-                ⚠️ Safety Warning
-              </h2>
-              {diagnosis.safetyWarnings.map((w, i) => (
-                <p key={i} className="text-red-700 text-sm">{w}</p>
-              ))}
-            </div>
-          )}
-
-          {/* Dad Advice */}
-          {diagnosis.dadAdvice && (
-            <div className="bg-[#1E3A5F] rounded-2xl p-5 text-white">
-              <p className="text-sm font-bold text-[#F97316] uppercase tracking-wide mb-2">
-                🧔 PapaJi Kehte Hain
-              </p>
-              <p className="text-white/90 italic">&ldquo;{diagnosis.dadAdvice}&rdquo;</p>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={reset}
-              className="flex-1 py-4 rounded-xl font-bold text-[#1E3A5F] bg-[#1E3A5F]/10 hover:bg-[#1E3A5F]/20 transition-all"
-            >
-              Aur Kuch Toota?
-            </button>
-            <button
-              onClick={share}
-              className="flex-1 py-4 rounded-xl font-bold text-white bg-[#F97316] hover:bg-[#F97316]/90 shadow-lg shadow-[#F97316]/30 transition-all"
-            >
-              📤 Share Fix
-            </button>
-          </div>
+            </FadeIn>
+          ))}
         </div>
-      )}
+      </section>
 
-      {/* Footer */}
-      <footer className="text-center mt-12 text-[#1E3A5F]/30 text-sm">
-        Made with ❤️ and jugaad
+      {/* ABOUT */}
+      <section id="about" className="py-24 px-6 md:px-12 max-w-[1400px] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+          <FadeIn>
+            <div className="relative aspect-[3/4] overflow-hidden">
+              <Image
+                src="/images/portraits/artist-red-cap.jpg"
+                alt="Abhay Kumar Gautam"
+                fill
+                className="object-cover"
+                loading="lazy"
+                quality={85}
+              />
+            </div>
+          </FadeIn>
+          <FadeIn delay={0.2}>
+            <h2
+              className="text-xs tracking-[0.4em] uppercase mb-8"
+              style={{ color: "#c4a265", fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              About the Artist
+            </h2>
+            <p
+              className="text-lg md:text-xl leading-relaxed font-light"
+              style={{ color: "#faf8f5cc", fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              Abhay Kumar Gautam is a painter, sculptor, and retired art teacher from Kanpur, India.
+              Over three decades, his work has explored the dynamism of equine form, the quiet poetry
+              of landscapes, and the surreal spaces between memory and dream.
+            </p>
+            <p
+              className="mt-6 text-lg md:text-xl leading-relaxed font-light"
+              style={{ color: "#faf8f5cc", fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              His palette draws from the earth — burnt sienna, monsoon greens, twilight golds.
+              A graduate of the Kanpur School of Art, he spent 30+ years teaching the next generation
+              while building a body of work that spans oil painting, watercolor, and sculpture.
+            </p>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* CONTACT */}
+      <section id="contact" className="py-24 px-6 md:px-12" style={{ backgroundColor: "#111" }}>
+        <div className="max-w-xl mx-auto text-center">
+          <FadeIn>
+            <h2
+              className="text-xs tracking-[0.4em] uppercase mb-8"
+              style={{ color: "#c4a265", fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              Contact
+            </h2>
+            <p className="text-lg font-light mb-2" style={{ color: "#faf8f5cc" }}>
+              Studio: Kanpur, India
+            </p>
+            <a
+              href="mailto:abhay.gautam.art@gmail.com"
+              className="text-lg transition-colors duration-300"
+              style={{ color: "#c4a265" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#6b2d3e")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#c4a265")}
+            >
+              abhay.gautam.art@gmail.com
+            </a>
+          </FadeIn>
+
+          <FadeIn delay={0.2}>
+            {!formSent ? (
+              <form
+                className="mt-12 space-y-4 text-left"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setFormSent(true);
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Your Name"
+                  required
+                  className="w-full bg-transparent border-b px-0 py-3 text-sm focus:outline-none transition-colors duration-300"
+                  style={{ borderColor: "#333", color: "#faf8f5", fontFamily: "'Cormorant Garamond', serif" }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "#c4a265")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "#333")}
+                />
+                <input
+                  type="email"
+                  placeholder="Your Email"
+                  required
+                  className="w-full bg-transparent border-b px-0 py-3 text-sm focus:outline-none transition-colors duration-300"
+                  style={{ borderColor: "#333", color: "#faf8f5", fontFamily: "'Cormorant Garamond', serif" }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "#c4a265")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "#333")}
+                />
+                <textarea
+                  placeholder="Your Message"
+                  rows={4}
+                  required
+                  className="w-full bg-transparent border-b px-0 py-3 text-sm focus:outline-none resize-none transition-colors duration-300"
+                  style={{ borderColor: "#333", color: "#faf8f5", fontFamily: "'Cormorant Garamond', serif" }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "#c4a265")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "#333")}
+                />
+                <button
+                  type="submit"
+                  className="mt-4 text-xs tracking-[0.3em] uppercase py-3 px-8 border transition-all duration-300"
+                  style={{ borderColor: "#c4a265", color: "#c4a265", fontFamily: "'Cormorant Garamond', serif" }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#c4a265";
+                    e.currentTarget.style.color = "#1a1a1a";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "#c4a265";
+                  }}
+                >
+                  Send Inquiry
+                </button>
+              </form>
+            ) : (
+              <p className="mt-12 text-lg" style={{ color: "#c4a265" }}>
+                Thank you for your inquiry. We&apos;ll be in touch.
+              </p>
+            )}
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="py-8 text-center">
+        <p className="text-xs tracking-[0.2em]" style={{ color: "#faf8f555" }}>
+          © 2026 Abhay Kumar Gautam
+        </p>
       </footer>
     </main>
   );

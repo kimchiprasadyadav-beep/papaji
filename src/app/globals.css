@@ -1,21 +1,40 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
 
-:root {
-  --papaji-orange: #F97316;
-  --papaji-navy: #1E3A5F;
-  --papaji-cream: #FFF8F0;
-  --papaji-light: #FED7AA;
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  background-color: #1a1a1a;
+  color: #faf8f5;
+  font-family: 'Cormorant Garamond', serif;
 }
 
-@keyframes pulse-gentle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+::selection {
+  background-color: #c4a265;
+  color: #1a1a1a;
 }
 
-.animate-pulse-gentle {
-  animation: pulse-gentle 2s ease-in-out infinite;
+/* Masonry grid */
+.masonry {
+  columns: 3;
+  column-gap: 8px;
+}
+
+.masonry > div {
+  break-inside: avoid;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 1024px) {
+  .masonry {
+    columns: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .masonry {
+    columns: 1;
+  }
 }
